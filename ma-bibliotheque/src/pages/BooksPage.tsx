@@ -241,31 +241,20 @@ export default function BooksPage() {
 
   return (
     <div className="container py-6">
-      {/* Header avec titre et bouton ajouter */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Ma Bibliotheque</h1>
-          <p className="text-muted-foreground">
-            {filteredBooks.length} livre{filteredBooks.length !== 1 ? 's' : ''}
-            {filterStatus !== 'all' && ` sur ${books.length}`}
-          </p>
-        </div>
-
-        {/* Bouton ajouter - visible desktop uniquement, FAB sur mobile */}
-        <Button onClick={handleAddBook} className="hidden sm:flex">
-          <BookPlus className="mr-2 h-4 w-4" />
-          Ajouter un livre
-        </Button>
-      </div>
-
-      {/* Filtres - visible uniquement si des livres existent */}
+      {/* Filtres + Bouton ajouter */}
       {!isLoading && !error && books.length > 0 && (
-        <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <StatusFilter
             value={filterStatus}
             onChange={setFilterStatus}
             counts={counts}
           />
+
+          {/* Bouton ajouter - visible desktop uniquement, FAB sur mobile */}
+          <Button onClick={handleAddBook} className="hidden sm:flex">
+            <BookPlus className="mr-2 h-4 w-4" />
+            Ajouter un livre
+          </Button>
         </div>
       )}
 
