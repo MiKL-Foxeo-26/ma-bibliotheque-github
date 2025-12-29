@@ -1,0 +1,381 @@
+@import "tailwindcss";
+
+/* ===== FIVE PATHWAYS INSPIRED DESIGN SYSTEM ===== */
+
+:root {
+  /* Palette Five Pathways - Creme chaud / Vert menthe / Noir */
+  --background: #FFFAF5;
+  --foreground: #1a1a1a;
+  --card: #FFFAF5;
+  --card-foreground: #1a1a1a;
+  --popover: #FFFAF5;
+  --popover-foreground: #1a1a1a;
+
+  /* Primary - Vert menthe signature */
+  --primary: #63CFBF;
+  --primary-foreground: #1a1a1a;
+
+  /* Secondary - Jaune pale (badge "En cours") */
+  --secondary: #FCEFCF;
+  --secondary-foreground: #1a1a1a;
+
+  /* Muted - Rose pale (badge "A lire") */
+  --muted: #FEE3D9;
+  --muted-foreground: #6b5c54;
+
+  /* Accent - Vert pale (badge "Lu") */
+  --accent: #d4edda;
+  --accent-foreground: #1a1a1a;
+
+  /* Destructive - Rouge doux */
+  --destructive: #e57373;
+  --destructive-foreground: #1a1a1a;
+
+  /* Bordures noires fines */
+  --border: #1a1a1a;
+  --input: #FFFAF5;
+  --ring: #63CFBF;
+
+  /* Charts */
+  --chart-1: #63CFBF;
+  --chart-2: #FCEFCF;
+  --chart-3: #FEE3D9;
+  --chart-4: #d4edda;
+  --chart-5: #ECF5F5;
+
+  /* Sidebar */
+  --sidebar: #FFFAF5;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #63CFBF;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #ECF5F5;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #1a1a1a;
+  --sidebar-ring: #63CFBF;
+
+  /* Typographie - Serif pour titres, sans pour corps */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Merriweather', 'Georgia', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radius - Pill style pour boutons */
+  --radius: 0.5rem;
+  --radius-pill: 999px;
+
+  /* Ombres offset solides (style Five Pathways) */
+  --shadow-offset: 4px;
+  --shadow-color: #1a1a1a;
+  --shadow-2xs: 2px 2px 0 0 var(--shadow-color);
+  --shadow-xs: 2px 2px 0 0 var(--shadow-color);
+  --shadow-sm: 3px 3px 0 0 var(--shadow-color);
+  --shadow: 4px 4px 0 0 var(--shadow-color);
+  --shadow-md: 5px 5px 0 0 var(--shadow-color);
+  --shadow-lg: 6px 6px 0 0 var(--shadow-color);
+  --shadow-xl: 8px 8px 0 0 var(--shadow-color);
+  --shadow-2xl: 10px 10px 0 0 var(--shadow-color);
+
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: #1a1a1a;
+  --foreground: #FFFAF5;
+  --card: #2a2a2a;
+  --card-foreground: #FFFAF5;
+  --popover: #2a2a2a;
+  --popover-foreground: #FFFAF5;
+  --primary: #7DDCD0;
+  --primary-foreground: #1a1a1a;
+  --secondary: #4a4535;
+  --secondary-foreground: #FFFAF5;
+  --muted: #3d3535;
+  --muted-foreground: #a89890;
+  --accent: #2d3d2f;
+  --accent-foreground: #FFFAF5;
+  --destructive: #cf6679;
+  --destructive-foreground: #1a1a1a;
+  --border: #FFFAF5;
+  --input: #2a2a2a;
+  --ring: #7DDCD0;
+  --chart-1: #7DDCD0;
+  --chart-2: #FCEFCF;
+  --chart-3: #FEE3D9;
+  --chart-4: #d4edda;
+  --chart-5: #ECF5F5;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #FFFAF5;
+  --sidebar-primary: #7DDCD0;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #2a2a2a;
+  --sidebar-accent-foreground: #FFFAF5;
+  --sidebar-border: #FFFAF5;
+  --sidebar-ring: #7DDCD0;
+  --shadow-color: #FFFAF5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-pill: var(--radius-pill);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    @apply text-foreground;
+    font-family: var(--font-sans);
+    background: var(--background);
+  }
+
+  /* Contenu principal au-dessus du fond anime */
+  #root > *:not(.library-bg) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Titres en serif (style librairie) */
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+  }
+}
+
+
+/* ===== ANIMATIONS FIVE PATHWAYS ===== */
+
+@layer utilities {
+  /* Transition fluide globale */
+  .transition-fp {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hover avec deplacement (style Five Pathways) */
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hover-lift:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 var(--shadow-color);
+  }
+
+  /* Hover press (inverse - comme un bouton enfonce) */
+  .hover-press {
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hover-press:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 var(--shadow-color);
+  }
+  .hover-press:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0 0 var(--shadow-color);
+  }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  /* Slide up animation */
+  .animate-slide-up {
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Scale in animation */
+  .animate-scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Underline animation (style Five Pathways) */
+  .underline-animated {
+    position: relative;
+  }
+  .underline-animated::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .underline-animated:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===== COMPOSANTS CUSTOM ===== */
+
+@layer components {
+  /* Card style Five Pathways */
+  .card-fp {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-fp:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Button pill style */
+  .btn-pill {
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .btn-pill:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: var(--shadow);
+  }
+  .btn-pill:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 0 var(--shadow-color);
+  }
+
+  /* Badge pastels */
+  .badge-muted {
+    background: var(--muted);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+  }
+  .badge-secondary {
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    border: 1px solid var(--border);
+  }
+  .badge-accent {
+    background: var(--accent);
+    color: var(--accent-foreground);
+    border: 1px solid var(--border);
+  }
+}
+
+/* ===== CONTAINER ===== */
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}

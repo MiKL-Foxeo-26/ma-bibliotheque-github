@@ -1,0 +1,47 @@
+Vision
+Nom : Ma Bibliotheque
+
+Description : Application web personnelle pour gerer sa collection de livres et suivre ses lectures.
+
+Probleme : Les lecteurs reguliers oublient quels livres ils ont lus, lesquels ils veulent lire, et rachetent parfois des livres qu'ils possedent deja.
+
+Solution : Une app simple pour cataloguer ses livres avec leur statut de lecture.
+
+Cible
+Utilisateur type : Toute personne qui lit regulierement et veut garder une trace de ses livres.
+
+Fonctionnalites
+#	Fonctionnalite	Description
+1	Voir la liste de mes livres	Afficher tous les livres enregistres avec titre, auteur et statut
+2	Ajouter un livre	Creer une entree avec titre, auteur et statut de lecture
+3	Modifier un livre	Mettre a jour les informations d'un livre existant
+4	Supprimer un livre	Retirer definitivement un livre de la liste
+5	Filtrer par statut	Afficher uniquement les livres "a lire", "en cours" ou "lus"
+Statuts disponibles :
+
+A lire
+En cours
+Lu
+Hors scope
+Ces elements sont explicitement exclus du projet :
+
+Recherche de livres via API externe (Google Books, Open Library)
+Upload ou affichage de couvertures (images)
+Partage de bibliotheque entre utilisateurs
+Notes, critiques ou commentaires detailles
+Scan de code-barres ou ISBN
+Categories ou genres de livres
+Systeme de pret
+Recommandations
+Stack technique
+Composant	Technologie
+Frontend	React 18 + Vite 5.x
+Routing	React Router 7.x
+UI	Shadcn/ui + TweakCN
+Backend	Supabase (auth + database)
+Deploiement	Vercel
+Contraintes Supabase :
+
+Pas d'Edge Functions
+Pas de Storage (images)
+Pas de Realtime

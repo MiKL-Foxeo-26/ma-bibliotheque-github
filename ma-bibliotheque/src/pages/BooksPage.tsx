@@ -1,0 +1,373 @@
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { toast } from 'sonner'
+import { BookPlus } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { getBooks, addBook, updateBook, updateBookStatus, deleteBook } from '@/lib/books'
+import { Button } from '@/components/ui/button'
+import { BookList } from '@/components/library/BookList'
+import { BookListSkeleton } from '@/components/library/SkeletonCard'
+import { EmptyLibrary } from '@/components/library/EmptyLibrary'
+import { StatusFilter, type FilterValue } from '@/components/library/StatusFilter'
+import { FilteredEmptyState } from '@/components/library/FilteredEmptyState'
+import { AddBookDialog } from '@/components/book/AddBookDialog'
+import { EditBookDialog } from '@/components/book/EditBookDialog'
+import { DeleteConfirmDialog } from '@/components/book/DeleteConfirmDialog'
+import type { Book, BookStatus } from '@/types/book'
+import type { BookFormData } from '@/schemas/book'
+
+export default function BooksPage() {
+  const { user } = useAuth()
+  const [books, setBooks] = useState<Book[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [bookToEdit, setBookToEdit] = useState<Book | null>(null)
+
+  // Delete states
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deletingBook, setDeletingBook] = useState<Book | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  // Refs pour stocker le livre supprime (pour undo)
+  const deletedBookRef = useRef<Book | null>(null)
+  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Filter state
+  const [filterStatus, setFilterStatus] = useState<FilterValue>('all')
+
+  // Calculer les livres filtres
+  const filteredBooks = useMemo(() => {
+    if (filterStatus === 'all') {
+      return books
+    }
+    return books.filter((book) => book.status === filterStatus)
+  }, [books, filterStatus])
+
+  // Calculer les compteurs par statut
+  const counts = useMemo(() => {
+    return {
+      all: books.length,
+      to_read: books.filter((b) => b.status === 'to_read').length,
+      reading: books.filter((b) => b.status === 'reading').length,
+      read: books.filter((b) => b.status === 'read').length,
+    }
+  }, [books])
+
+  // Reset filter
+  const handleResetFilter = () => {
+    setFilterStatus('all')
+  }
+
+  // Fetch des livres au chargement
+  const fetchBooks = useCallback(async () => {
+    if (!user) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const data = await getBooks(user.id)
+      setBooks(data)
+    } catch (err) {
+      console.error('Erreur lors du chargement des livres:', err)
+      setError('Impossible de charger vos livres')
+      toast.error('Erreur lors du chargement')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [user])
+
+  useEffect(() => {
+    fetchBooks()
+  }, [fetchBooks])
+
+  // Handler pour ouvrir le dialog d'ajout
+  const handleAddBook = () => {
+    setIsAddDialogOpen(true)
+  }
+
+  // Handler pour soumettre le nouveau livre avec Optimistic UI
+  const handleAddBookSubmit = async (data: BookFormData) => {
+    if (!user) return
+
+    // Creer un livre temporaire pour Optimistic UI
+    const tempId = `temp-${Date.now()}`
+    const tempBook: Book = {
+      id: tempId,
+      user_id: user.id,
+      title: data.title,
+      author: data.author,
+      status: data.status,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
+    // Ajout optimiste - le nouveau livre apparait immediatement en premier
+    setBooks((prev) => [tempBook, ...prev])
+
+    try {
+      // Appel API reel
+      const createdBook = await addBook(user.id, data)
+
+      // Remplacer le livre temporaire par le livre reel
+      setBooks((prev) =>
+        prev.map((book) => (book.id === tempId ? createdBook : book))
+      )
+
+      toast.success('Livre ajoute')
+    } catch (error) {
+      // Rollback en cas d'erreur
+      setBooks((prev) => prev.filter((book) => book.id !== tempId))
+      toast.error("Erreur lors de l'ajout")
+      console.error(error)
+      throw error // Re-throw pour que le dialog sache qu'il y a eu une erreur
+    }
+  }
+
+  // Handler pour ouvrir le dialog d'edition
+  const handleEditBook = (book: Book) => {
+    setBookToEdit(book)
+  }
+
+  // Handler pour soumettre les modifications avec Optimistic UI
+  const handleEditBookSubmit = async (bookId: string, data: BookFormData) => {
+    // Sauvegarder l'etat precedent pour rollback
+    const previousBooks = [...books]
+
+    // Optimistic update - mise a jour immediate
+    setBooks((prev) =>
+      prev.map((book) =>
+        book.id === bookId
+          ? { ...book, ...data, updated_at: new Date().toISOString() }
+          : book
+      )
+    )
+
+    try {
+      await updateBook(bookId, data)
+      toast.success('Livre modifie')
+    } catch (error) {
+      // Rollback en cas d'erreur
+      setBooks(previousBooks)
+      toast.error('Erreur lors de la modification')
+      console.error(error)
+      throw error
+    }
+  }
+
+  // Handler pour ouvrir le dialog de suppression
+  const handleDeleteBook = (id: string) => {
+    const book = books.find((b) => b.id === id)
+    if (book) {
+      setDeletingBook(book)
+      setIsDeleteDialogOpen(true)
+    }
+  }
+
+  // Handler pour confirmer la suppression
+  const handleConfirmDelete = async () => {
+    if (!deletingBook || !user) return
+
+    setIsDeleting(true)
+
+    // Sauvegarder le livre pour undo potentiel
+    deletedBookRef.current = deletingBook
+
+    // Optimistic delete
+    setBooks((prev) => prev.filter((book) => book.id !== deletingBook.id))
+    setIsDeleteDialogOpen(false)
+
+    // Clear any existing undo timeout
+    if (undoTimeoutRef.current) {
+      clearTimeout(undoTimeoutRef.current)
+    }
+
+    try {
+      await deleteBook(deletingBook.id)
+
+      // Toast avec option Undo
+      toast.success('Livre supprime', {
+        duration: 5000,
+        action: {
+          label: 'Annuler',
+          onClick: handleUndoDelete,
+        },
+      })
+
+      // Timeout pour nettoyer la reference du livre supprime
+      undoTimeoutRef.current = setTimeout(() => {
+        deletedBookRef.current = null
+      }, 5000)
+
+    } catch (error) {
+      // Rollback - restaurer le livre
+      if (deletedBookRef.current) {
+        setBooks((prev) => [deletedBookRef.current!, ...prev])
+        deletedBookRef.current = null
+      }
+      toast.error('Erreur lors de la suppression')
+      console.error(error)
+    } finally {
+      setIsDeleting(false)
+      setDeletingBook(null)
+    }
+  }
+
+  // Handler pour annuler la suppression (Undo)
+  const handleUndoDelete = async () => {
+    if (!deletedBookRef.current || !user) return
+
+    const bookToRestore = deletedBookRef.current
+    deletedBookRef.current = null
+
+    // Clear timeout
+    if (undoTimeoutRef.current) {
+      clearTimeout(undoTimeoutRef.current)
+      undoTimeoutRef.current = null
+    }
+
+    try {
+      // Re-creer le livre dans Supabase
+      const restoredBook = await addBook(user.id, {
+        title: bookToRestore.title,
+        author: bookToRestore.author,
+        status: bookToRestore.status,
+      })
+
+      // Ajouter le livre restaure a la liste
+      setBooks((prev) => [restoredBook, ...prev])
+      toast.success('Livre restaure')
+    } catch (error) {
+      toast.error('Erreur lors de la restauration')
+      console.error(error)
+    }
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (undoTimeoutRef.current) {
+        clearTimeout(undoTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // Optimistic UI pour le changement de statut
+  const handleStatusChange = async (id: string, status: BookStatus) => {
+    // Sauvegarder l'etat precedent pour rollback
+    const previousBooks = [...books]
+    const bookToUpdate = books.find((b) => b.id === id)
+
+    if (!bookToUpdate) return
+
+    // Optimistic update - mise a jour immediate
+    setBooks((prev) =>
+      prev.map((book) =>
+        book.id === id ? { ...book, status } : book
+      )
+    )
+
+    try {
+      await updateBookStatus(id, status)
+      toast.success('Statut mis a jour')
+    } catch (error) {
+      // Rollback en cas d'erreur
+      setBooks(previousBooks)
+      toast.error('Erreur lors de la mise a jour du statut')
+      console.error(error)
+    }
+  }
+
+  return (
+    <div className="container py-6">
+      {/* Header avec titre et bouton ajouter */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Ma Bibliotheque</h1>
+          <p className="text-muted-foreground">
+            {filteredBooks.length} livre{filteredBooks.length !== 1 ? 's' : ''}
+            {filterStatus !== 'all' && ` sur ${books.length}`}
+          </p>
+        </div>
+
+        {/* Bouton ajouter - visible desktop uniquement, FAB sur mobile */}
+        <Button onClick={handleAddBook} className="hidden sm:flex">
+          <BookPlus className="mr-2 h-4 w-4" />
+          Ajouter un livre
+        </Button>
+      </div>
+
+      {/* Filtres - visible uniquement si des livres existent */}
+      {!isLoading && !error && books.length > 0 && (
+        <div className="mb-6">
+          <StatusFilter
+            value={filterStatus}
+            onChange={setFilterStatus}
+            counts={counts}
+          />
+        </div>
+      )}
+
+      {/* Contenu principal */}
+      {isLoading ? (
+        <BookListSkeleton />
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-destructive mb-4">{error}</p>
+          <Button variant="outline" onClick={fetchBooks}>
+            Reessayer
+          </Button>
+        </div>
+      ) : books.length === 0 ? (
+        <EmptyLibrary onAddBook={handleAddBook} />
+      ) : filteredBooks.length === 0 ? (
+        <FilteredEmptyState
+          status={filterStatus as BookStatus}
+          onResetFilter={handleResetFilter}
+        />
+      ) : (
+        <BookList
+          books={filteredBooks}
+          onEditBook={handleEditBook}
+          onDeleteBook={handleDeleteBook}
+          onStatusChange={handleStatusChange}
+        />
+      )}
+
+      {/* FAB Mobile */}
+      {!isLoading && books.length > 0 && (
+        <Button
+          onClick={handleAddBook}
+          size="icon"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg sm:hidden"
+          aria-label="Ajouter un livre"
+        >
+          <BookPlus className="h-6 w-6" />
+        </Button>
+      )}
+
+      {/* Dialog d'ajout de livre */}
+      <AddBookDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSubmit={handleAddBookSubmit}
+      />
+
+      {/* Dialog d'edition de livre */}
+      <EditBookDialog
+        book={bookToEdit}
+        onClose={() => setBookToEdit(null)}
+        onSubmit={handleEditBookSubmit}
+      />
+
+      {/* Dialog de confirmation de suppression */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        bookTitle={deletingBook?.title ?? ''}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+    </div>
+  )
+}

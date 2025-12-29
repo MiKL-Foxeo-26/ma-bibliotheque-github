@@ -1,0 +1,62 @@
+# generated: 2025-12-18
+# project: Ma Bibliotheque
+# project_key: ma-bibliotheque
+# tracking_system: file-system
+# story_location: docs/sprint-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder
+#   - ready-for-dev: Draft approved and story context created
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2025-12-18
+project: Ma Bibliotheque
+project_key: ma-bibliotheque
+tracking_system: file-system
+story_location: docs/sprint-artifacts
+
+development_status:
+  # Epic 1: Fondation et Authentification
+  epic-1: in-progress
+  1-1-initialisation-du-projet-et-configuration-de-base: review
+  1-2-configuration-supabase-et-schema-de-base-de-donnees: review
+  1-3-contexte-dauthentification-et-gestion-de-session: review
+  1-4-page-de-connexion-avec-inscription-et-connexion: review
+  1-5-routes-protegees-et-deconnexion: review
+  epic-1-retrospective: optional
+
+  # Epic 2: Gestion de la Bibliotheque
+  epic-2: in-progress
+  2-1-service-layer-et-types-pour-les-livres: done
+  2-2-page-bibliotheque-et-liste-des-livres: done
+  2-3-composant-bookcard-avec-statusbadge: done
+  2-4-ajout-de-livre-avec-formulaire: done
+  2-5-modification-de-livre: done
+  2-6-suppression-de-livre-avec-confirmation: backlog
+  2-7-filtrage-par-statut: backlog
+  epic-2-retrospective: optional

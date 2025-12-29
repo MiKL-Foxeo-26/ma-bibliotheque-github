@@ -1,0 +1,16 @@
+# Secrets and local configuration
+.mcp.json
+.env
+.env.local
+.env*.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules (in case)
+node_modules/

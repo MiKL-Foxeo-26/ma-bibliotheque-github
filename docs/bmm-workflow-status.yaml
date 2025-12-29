@@ -1,0 +1,79 @@
+# BMM Workflow Status - Suivi du projet
+# Généré par workflow-init
+# Ce fichier suit la progression à travers les phases Analysis, Planning et Solutioning
+# La phase Implementation est suivie séparément dans sprint-status.yaml
+
+generated: "2025-12-17"
+project: "appli bibliotheque"
+project_type: "software"
+selected_track: "bmad-method"
+field_type: "greenfield"
+workflow_path: "method-greenfield.yaml"
+
+# STATUS DEFINITIONS:
+# ===================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/prd.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+workflow_status:
+  # Phase 0 - Discovery (Optional)
+  phase_0_discovery:
+    brainstorm-project:
+      status: "optional"
+      agent: "analyst"
+      command: "/bmad:bmm:workflows:brainstorming-session"
+    research:
+      status: "optional"
+      agent: "analyst"
+      command: "/bmad:bmm:workflows:research"
+    product-brief:
+      status: "optional"
+      agent: "analyst"
+      command: "/bmad:bmm:workflows:create-product-brief"
+
+  # Phase 1 - Planning
+  phase_1_planning:
+    prd:
+      status: "docs/prd/index.md"
+      agent: "pm"
+      command: "/bmad:bmm:workflows:create-prd"
+      completed: "2025-12-17"
+    create-ux-design:
+      status: "docs/ux-design-specification.md"
+      condition: "if_has_ui"
+      agent: "ux-designer"
+      command: "/bmad:bmm:workflows:create-ux-design"
+      completed: "2025-12-17"
+
+  # Phase 2 - Solutioning
+  phase_2_solutioning:
+    create-architecture:
+      status: "required"
+      agent: "architect"
+      command: "/bmad:bmm:workflows:create-architecture"
+    create-epics-and-stories:
+      status: "required"
+      agent: "pm"
+      command: "/bmad:bmm:workflows:create-epics-stories"
+    test-design:
+      status: "recommended"
+      agent: "tea"
+      command: "/bmad:bmm:workflows:testarch-test-design"
+    implementation-readiness:
+      status: "required"
+      agent: "architect"
+      command: "/bmad:bmm:workflows:check-implementation-readiness"
+
+  # Phase 3 - Implementation
+  phase_3_implementation:
+    sprint-planning:
+      status: "required"
+      agent: "sm"
+      command: "/bmad:bmm:workflows:sprint-planning"
