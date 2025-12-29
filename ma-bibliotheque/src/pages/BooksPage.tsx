@@ -28,8 +28,8 @@ export default function BooksPage() {
   const [deletingBook, setDeletingBook] = useState<Book | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Refs pour stocker le livre supprime (pour undo)
-  const deletedBookRef = useRef<Book | null>(null)
+  // Undo toast state (bypass Sonner bug)
+  const [undoToast, setUndoToast] = useState<{ book: Book; userId: string } | null>(null)
   const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Filter state
@@ -170,9 +170,6 @@ export default function BooksPage() {
 
     setIsDeleting(true)
 
-    // Sauvegarder le livre pour undo potentiel
-    deletedBookRef.current = deletingBook
-
     // Optimistic delete
     setBooks((prev) => prev.filter((book) => book.id !== deletingBook.id))
     setIsDeleteDialogOpen(false)
@@ -185,61 +182,25 @@ export default function BooksPage() {
     try {
       await deleteBook(deletingBook.id)
 
-      // Toast avec option Undo
-      toast.success('Livre supprime', {
-        duration: 5000,
-        action: {
-          label: 'Annuler',
-          onClick: handleUndoDelete,
-        },
-      })
+      // Afficher notre propre toast (bypass Sonner)
+      setUndoToast({ book: { ...deletingBook }, userId: user.id })
+      toast.success('Livre supprime')
 
-      // Timeout pour nettoyer la reference du livre supprime
+      // Timeout pour cacher le toast undo apres 5s
       undoTimeoutRef.current = setTimeout(() => {
-        deletedBookRef.current = null
+        setUndoToast(null)
       }, 5000)
 
     } catch (error) {
-      // Rollback - restaurer le livre
-      if (deletedBookRef.current) {
-        setBooks((prev) => [deletedBookRef.current!, ...prev])
-        deletedBookRef.current = null
+      // Rollback - restaurer le livre si erreur
+      if (deletingBook) {
+        setBooks((prev) => [deletingBook, ...prev])
       }
       toast.error('Erreur lors de la suppression')
       console.error(error)
     } finally {
       setIsDeleting(false)
       setDeletingBook(null)
-    }
-  }
-
-  // Handler pour annuler la suppression (Undo)
-  const handleUndoDelete = async () => {
-    if (!deletedBookRef.current || !user) return
-
-    const bookToRestore = deletedBookRef.current
-    deletedBookRef.current = null
-
-    // Clear timeout
-    if (undoTimeoutRef.current) {
-      clearTimeout(undoTimeoutRef.current)
-      undoTimeoutRef.current = null
-    }
-
-    try {
-      // Re-creer le livre dans Supabase
-      const restoredBook = await addBook(user.id, {
-        title: bookToRestore.title,
-        author: bookToRestore.author,
-        status: bookToRestore.status,
-      })
-
-      // Ajouter le livre restaure a la liste
-      setBooks((prev) => [restoredBook, ...prev])
-      toast.success('Livre restaure')
-    } catch (error) {
-      toast.error('Erreur lors de la restauration')
-      console.error(error)
     }
   }
 
@@ -368,6 +329,48 @@ export default function BooksPage() {
         onConfirm={handleConfirmDelete}
         isDeleting={isDeleting}
       />
+
+      {/* Toast Undo personnalise (bypass Sonner) */}
+      {undoToast && (
+        <div
+          className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 bg-white border-2 border-border rounded-lg p-4 shadow-lg animate-slide-up"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <span className="text-sm font-medium">Livre supprime</span>
+          <button
+            type="button"
+            onClick={() => {
+              console.log('=== CUSTOM UNDO CLICKED ===')
+              const { book, userId } = undoToast
+
+              // Clear timeout et toast
+              if (undoTimeoutRef.current) {
+                clearTimeout(undoTimeoutRef.current)
+                undoTimeoutRef.current = null
+              }
+              setUndoToast(null)
+
+              // Re-creer le livre
+              addBook(userId, {
+                title: book.title,
+                author: book.author,
+                status: book.status,
+              })
+                .then((restoredBook) => {
+                  setBooks((prev) => [restoredBook, ...prev])
+                  toast.success('Livre restaure')
+                })
+                .catch((err) => {
+                  toast.error('Erreur lors de la restauration')
+                  console.error(err)
+                })
+            }}
+            className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            Annuler
+          </button>
+        </div>
+      )}
     </div>
   )
 }
