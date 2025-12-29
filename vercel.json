@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd ma-bibliotheque && npm install && npm run build",
+  "outputDirectory": "ma-bibliotheque/dist",
+  "installCommand": "cd ma-bibliotheque && npm install",
+  "framework": "vite"
+}
